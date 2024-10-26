@@ -1,10 +1,8 @@
-print("Hello from gateway.py")
-
 from awscrt import mqtt, http
 from awsiot import mqtt_connection_builder
 import sys
 import threading
-from utils.command_line_utils import CommandLineUtils
+# from utils.command_line_utils import CommandLineUtils
 
 # This class is contain all the methods to working with AWS IoT throught 
 # MQTT protocol. It will save the key, cert, ca, endpoint, port, client_id,

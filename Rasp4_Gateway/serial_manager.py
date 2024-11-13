@@ -1,4 +1,7 @@
 import serial.tools.list_ports
+import aws_mqtt
+import json_encode
+import global_manager
 
 class SerialManager:
     __serial_comm = None
@@ -16,7 +19,7 @@ class SerialManager:
             if "USB-SERIAL" in str_port:
                 split_port = str_port.split(" ")
                 communication_ports = split_port[0]
-        return communication_ports
+        return "COM7" # communication_ports
     
     def open_serial_port(self, baudrate, port=get_serial_ports()):
         print("Oppening serial port: ", port)
@@ -37,7 +40,6 @@ class SerialManager:
         data = data.replace("!", "")
         data = data.replace("#", "")
         split_data = data.split(":")
-        print("Data received: ", split_data)
         if len(split_data) != 3:
             return None, None, None
         return split_data[0], split_data[1], split_data[2]
@@ -53,8 +55,24 @@ class SerialManager:
                 start = self.__message.find("!")
                 end = self.__message.find("#")
                 new_message = self.__message[start:end + 1]
+
+                # Data processing
                 id, value_type, value = self.process_data(new_message)
-                print("ID: ", id, "Value type: ", value_type, "Value: ", value)
+
+                if (value_type == "TEMP"):
+                    value_type = "temperature"
+                elif (value_type == "HUMI"):
+                    value_type = "humidity"
+                elif (value_type == "LUMO"):
+                    value_type = "illuminance"
+                
+                if (id == "0"):
+                    id = "CentralNode"
+                else:
+                    id = "Node" + id
+                
+                global_manager.myAwsMqtt.publish("values", json_encode.json_publish(id, value_type, value))
+
                 if (end == len(self.__message)):
                     self.__message = ""
                 else:

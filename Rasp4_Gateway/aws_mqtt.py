@@ -95,7 +95,7 @@ class AWS_MQTT:
                 on_connection_interrupted=None,
                 on_connection_resumed=None,
                 on_resubscribe_complete=None,
-                on_connection_received=None,
+                on_message_received=None,
                 on_connection_success=None,
                 on_connection_failure=None,
                 on_connection_closed=None,
@@ -111,12 +111,15 @@ class AWS_MQTT:
         self.__on_connection_interrupted = on_connection_interrupted if on_connection_interrupted is not None else self.default_on_connection_interrupted
         self.__on_connection_resumed = on_connection_resumed if on_connection_resumed is not None else self.default_on_connection_resumed
         self.__on_resubscribe_complete = on_resubscribe_complete if on_resubscribe_complete is not None else self.default_on_resubscribe_complete
-        self.__on_message_received = on_connection_received if on_connection_received is not None else self.default_on_message_received
+        self.__on_message_received = on_message_received if on_message_received is not None else self.default_on_message_received
         self.__on_connection_success = on_connection_success if on_connection_success is not None else self.default_on_connection_success
         self.__on_connection_failure = on_connection_failure if on_connection_failure is not None else self.default_on_connection_failure
         self.__on_connection_closed = on_connection_closed if on_connection_closed is not None else self.default_on_connection_closed
 
     def connect(self):
+        if self.mqtt_connection is not None:
+            print("Already connected!")
+            return
         self.mqtt_connection = mqtt_connection_builder.mtls_from_path(
             endpoint=self.__endpoint,
             cert_filepath=self.__cert_file,
@@ -137,7 +140,7 @@ class AWS_MQTT:
         connect_future.result()
         print("Connected!")
 
-    def subcribe(self):
+    def subscribe(self):
         print("Subscribing to topic '{}'...".format(self.__topic))
         for topic in self.__topic:
             print("Subscribing to topic '{}'...".format(topic))

@@ -19,7 +19,7 @@ class SerialManager:
             if "USB-SERIAL" in str_port:
                 split_port = str_port.split(" ")
                 communication_ports = split_port[0]
-        return "COM7" # communication_ports
+        return communication_ports
     
     def open_serial_port(self, baudrate, port=get_serial_ports()):
         print("Oppening serial port: ", port)

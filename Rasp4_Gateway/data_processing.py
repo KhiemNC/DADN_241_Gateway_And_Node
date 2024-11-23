@@ -68,6 +68,9 @@ def CMD00010_control_device(data):
     value = data["value"]
 
     cmd = format_message.serial_control_device(node_id, device_type, value)
+    # Debug
+    print(cmd)
+    # End debug
     global_manager.mySerialManager.write(cmd)
 
 def CMD00020_control_rule(data):

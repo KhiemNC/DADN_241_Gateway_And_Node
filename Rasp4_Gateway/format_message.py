@@ -43,6 +43,6 @@ def serial_control_device(id, device_type, value):
         print("serial_control_device(): value is too long")
         return
     elif (len(value) < 6):
-        value = value + "0" * (6 - len(value))
+        value = "0" * (6 - len(value)) + value
     
     return "!" + id + ":" + device_type + ":" + value + "#"

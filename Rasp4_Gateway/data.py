@@ -170,6 +170,13 @@ class Scenarios:
                 return 1
         return 0
     
+    def print_scenarios(self):
+        print("SCENARIOS:---------------------------------")
+        for scenario in self.scenarios:
+            print(scenario.to_string())
+        print("END SCENARIOS:---------------------------------")
+        return 1
+    
 class ScenarioItem:
     scenario_id = ""
     enable = 0
@@ -193,6 +200,12 @@ class ScenarioItem:
             new_cmd = format_message.serial_control_device(node_id, device_type, value)
             
             self.scenario_cmds.append(new_cmd)
+    
+    def to_string(self):
+        value = "ScenaID: " + self.scenario_id + ", Enable: " + str(self.enable) + ", Commands: "
+        for cmd in self.scenario_cmds:
+            value += cmd + " "
+
         
 # {
 #   "command_id": "CMD00030",

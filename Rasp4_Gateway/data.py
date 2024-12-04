@@ -152,10 +152,11 @@ class Scenarios:
 
     def execute_scenario(self, scenario_id):
         for scenario in self.scenarios:
-            if (scenario.scenario_id == scenario_id):
-                if (scenario.enable == 1):
-                    # EXECUTE SCENARIO HERE
-                    return 1 
+            if (scenario.scenario_id == scenario_id and scenario.enable == 1):
+                # EXECUTE SCENARIO HERE
+                for cmd in scenario.scenario_cmds:
+                    global_manager.mySerialManager.write(cmd)
+                return 1
         return 0
     
     def remove_scenario(self, scenario_id):

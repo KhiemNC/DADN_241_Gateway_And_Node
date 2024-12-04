@@ -125,9 +125,16 @@ def CMD00030_scenario(data):
                                          format_message.json_publish_update_scenario("ADD_RESPONSE", data["scenario_id"], "SUCCESS"))
 
     elif data["type"] == "DELETE":
-        global_manager.myScenarios.remove_scenario(data["scenario_id"])
+        result = global_manager.myScenarios.remove_scenario(data["scenario_id"])
+        if (result == 1):
+            global_manager.myAwsMqtt.publish("communicate/servertoclient",
+                                         format_message.json_publish_update_scenario("DELETE_RESPONSE", data["scenario_id"], "SUCCESS"))
+
     elif data["type"] == "RUN":
-        global_manager.myScenarios.execute_scenario(data["scenario_id"])
+        result = global_manager.myScenarios.execute_scenario(data["scenario_id"])
+        if (result == 1):
+            global_manager.myAwsMqtt.publish("communicate/servertoclient",
+                                         format_message.json_publish_update_scenario("RUN_RESPONSE", data["scenario_id"], "SUCCESS"))
 
 
 def process_data_from_client_to_device(message):

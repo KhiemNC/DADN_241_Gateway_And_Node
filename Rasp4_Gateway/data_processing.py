@@ -116,6 +116,14 @@ def CMD00020_control_rule(data):
 def CMD00030_scenario(data):
     if data["type"] == "ADD":
         global_manager.myScenarios.add_scenario(data)
+
+        # Debug
+        global_manager.myScenarios.print_scenarios()
+        # End debug
+
+        global_manager.myAwsMqtt.publish("communicate/servertoclient",
+                                         format_message.json_publish_update_scenario("ADD_RESPONSE", data["scenario_id"], "SUCCESS"))
+
     elif data["type"] == "DELETE":
         global_manager.myScenarios.remove_scenario(data["scenario_id"])
     elif data["type"] == "RUN":

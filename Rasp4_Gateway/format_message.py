@@ -56,3 +56,13 @@ def json_publish_update_control_rule(type, rule_id, value):
         "value": value
     }
     return json.dumps(data)
+
+def json_publish_update_scenario(type, scenario_id, value):
+    data = {
+        "command_id": "CMD00031",
+        "command_name": "UPDATE_SCENARIO",
+        "type": type,
+        "scenario_id": scenario_id,
+        "value": value
+    }
+    return json.dumps(data)

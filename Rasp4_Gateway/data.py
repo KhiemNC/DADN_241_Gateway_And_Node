@@ -3,11 +3,9 @@ import format_message
 import global_manager
 
 class Rules:
-    rules_values = []
-    rules_door = []
-
     def __init__(self):
-        pass
+        self.rules_values = []
+        self.rules_door = []
 
     def add_rule(self, data):
         new_rule = RuleItem(data)
@@ -84,15 +82,15 @@ class Rules:
         return 1
 
 class RuleItem:
-    rule_id = ""
-    enable = 0
-    device_type_if = ""
-    node_id_if = 0
-    comparator_if = ""
-    value_if = 0.0
-    cmd = "" # format message
-
     def __init__(self, data):
+        self.rule_id = ""
+        self.enable = 0
+        self.device_type_if = ""
+        self.node_id_if = 0
+        self.comparator_if = ""
+        self.value_if = 0.0
+        self.cmd = "" # format message
+
         # data is a json after json.loads()
         self.rule_id = data["rule_id"]
         self.enable = 1
@@ -144,10 +142,8 @@ class RuleItem:
 # }
 
 class Scenarios:
-    scenarios = []
-
     def __init__(self):
-        pass
+        self.scenarios = []
 
     def add_scenario(self, data):
         new_scenario = ScenarioItem(data)
@@ -178,14 +174,10 @@ class Scenarios:
         return 1
     
 class ScenarioItem:
-    scenario_id = ""
-    enable = 0
-    scenario_cmds = []
-
     def __init__(self, data):
-        data = json.loads(data)
-
         self.scenario_id = data["scenario_id"]
+        self.enable = 1
+        self.scenario_cmds = []
 
         for cmd in data["value"]:
             node_id = cmd["node_id"]
@@ -196,15 +188,24 @@ class ScenarioItem:
             device_type = cmd["device_type"]
             value = cmd["value"]
 
+            if (device_type == "LED_RGB"):
+                device_type = "1"
+            elif (device_type == "RELAY"):
+                device_type = "2"
+            elif (device_type == "FAN"):
+                device_type = "3"
+            elif (device_type == "DOOR"):
+                device_type = "4"
 
             new_cmd = format_message.serial_control_device(node_id, device_type, value)
             
             self.scenario_cmds.append(new_cmd)
     
     def to_string(self):
-        value = "ScenaID: " + self.scenario_id + ", Enable: " + str(self.enable) + ", Commands: "
+        temp = "ScenaID: " + self.scenario_id + ", Enable: " + str(self.enable) + ", Commands: "
         for cmd in self.scenario_cmds:
-            value += cmd + " "
+            temp += cmd + " "
+        return temp
 
         
 # {

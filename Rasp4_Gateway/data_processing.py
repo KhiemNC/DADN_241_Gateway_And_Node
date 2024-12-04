@@ -74,10 +74,25 @@ def CMD00010_control_device(data):
     global_manager.mySerialManager.write(cmd)
 
 def CMD00020_control_rule(data):
-    pass
+    if data["type"] == "ADD":
+        global_manager.myRules.add_rule(data)
+
+        # Debug
+        global_manager.myRules.print_rules()
+        # End debug
+
+        global_manager.myAwsMqtt.publish("communicate/servertoclient",
+                                         format_message.json_publish_update_control_rule("ADD_RESPONSE", data["rule_id"], "SUCCESS"))
+    elif data["type"] == "DELETE":
+        global_manager.myRules.remove_rule(data["rule_id"])
 
 def CMD00030_scenario(data):
-    pass
+    if data["type"] == "ADD":
+        global_manager.myScenarios.add_scenario(data)
+    elif data["type"] == "DELETE":
+        global_manager.myScenarios.remove_scenario(data["scenario_id"])
+    elif data["type"] == "RUN":
+        global_manager.myScenarios.execute_scenario(data["scenario_id"])
 
 
 def process_data_from_client_to_device(message):

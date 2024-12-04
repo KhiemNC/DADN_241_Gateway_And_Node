@@ -46,3 +46,13 @@ def serial_control_device(id, device_type, value):
         value = "0" * (6 - len(value)) + value
     
     return "!" + id + ":" + device_type + ":" + value + "#"
+
+def json_publish_update_control_rule(type, rule_id, value):
+    data = {
+        "command_id": "CMD00020",
+        "command_name": "CONTROL_RULE",
+        "type": type,
+        "rule_id": rule_id,
+        "value": value
+    }
+    return json.dumps(data)

@@ -7,8 +7,8 @@ class Rules:
     def __init__(self):
         pass
 
-    def add_rule(self, json_input):
-        new_rule = RuleItem(json_input)
+    def add_rule(self, data):
+        new_rule = RuleItem(data)
         self.rules.append(new_rule)
         return 1
 
@@ -27,6 +27,13 @@ class Rules:
                 rule.enable = 0
                 return 1
         return 0
+    
+    def print_rules(self):
+        print("RULES:---------------------------------")
+        for rule in self.rules:
+            print(rule.to_string())
+        print("END RULES:---------------------------------")
+        return 1
 
 class RuleItem:
     rule_id = ""
@@ -37,9 +44,8 @@ class RuleItem:
     value_if = 0.0
     cmd = "" # format message
 
-    def __init__(self, json_input):
-        data = json.loads(json_input)
-
+    def __init__(self, data):
+        # data is a json after json.loads()
         self.rule_id = data["rule_id"]
         self.enable = 1
         self.device_type_if = data["value"]["device_type_if"]
@@ -55,12 +61,22 @@ class RuleItem:
         device_type = data["value"]["device_type"]
         node_id = 0
         value = data["value"]["value"]
+        if (device_type == "LED_RGB"):
+            device_type = "1"
+        elif (device_type == "RELAY"):
+            device_type = "2"
+        elif (device_type == "FAN"):
+            device_type = "3"
+            
         if (data["value"]["node_id"] == "CentralNode"):
             node_id = 0
         else:
             node_id = 1
 
         self.cmd = format_message.serial_control_device(node_id, device_type, value)
+    
+    def to_string(self):
+        return "Rule ID: " + self.rule_id + ", Enable: " + str(self.enable) + ", Device Type IF: " + self.device_type_if + ", Node ID IF: " + str(self.node_id_if) + ", Comparator IF: " + self.comparator_if + ", Value IF: " + str(self.value_if) + ", Command: " + self.cmd
 # {
 #   "command_id": "CMD00020",
 #   "command_name": "CONTROL_RULE",
@@ -85,8 +101,8 @@ class Scenarios:
     def __init__(self):
         pass
 
-    def add_scenario(self, json_input):
-        new_scenario = ScenarioItem(json_input)
+    def add_scenario(self, data):
+        new_scenario = ScenarioItem(data)
         self.scenarios.append(new_scenario)
         return 1
 
@@ -111,8 +127,8 @@ class ScenarioItem:
     enable = 0
     scenario_cmds = []
 
-    def __init__(self, json_input):
-        data = json.loads(json_input)
+    def __init__(self, data):
+        data = json.loads(data)
 
         self.scenario_id = data["scenario_id"]
 

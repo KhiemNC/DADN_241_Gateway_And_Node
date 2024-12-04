@@ -1,8 +1,32 @@
 import json
 import format_message
 
-rules = []
-scenarios = []
+class Rules:
+    rules = []
+
+    def __init__(self):
+        pass
+
+    def add_rule(self, json_input):
+        new_rule = RuleItem(json_input)
+        self.rules.append(new_rule)
+        return 1
+
+    def execute_rule(self, rule_id):
+        for rule in self.rules:
+            if (rule.rule_id == rule_id):
+                if (rule.enable == 1):
+                    # EXECUTE RULE HERE
+                    return 1
+        return 0
+
+    def remove_rule(self, rule_id):
+        for rule in self.rules:
+            if (rule.rule_id == rule_id):
+                # set enable to 0
+                rule.enable = 0
+                return 1
+        return 0
 
 class RuleItem:
     rule_id = ""
@@ -55,6 +79,32 @@ class RuleItem:
 # 	}
 # }
 
+class Scenarios:
+    scenarios = []
+
+    def __init__(self):
+        pass
+
+    def add_scenario(self, json_input):
+        new_scenario = ScenarioItem(json_input)
+        self.scenarios.append(new_scenario)
+        return 1
+
+    def execute_scenario(self, scenario_id):
+        for scenario in self.scenarios:
+            if (scenario.scenario_id == scenario_id):
+                if (scenario.enable == 1):
+                    # EXECUTE SCENARIO HERE
+                    return 1 
+        return 0
+    
+    def remove_scenario(self, scenario_id):
+        for scenario in self.scenarios:
+            if (scenario.scenario_id == scenario_id):
+                # set enable to 0
+                scenario.enable = 0
+                return 1
+        return 0
     
 class ScenarioItem:
     scenario_id = ""

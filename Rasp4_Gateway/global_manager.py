@@ -1,6 +1,7 @@
 import aws_mqtt
 import data_processing
 import serial_manager
+import data
 
 value_topics = ["values"]
 receiving_topic = ["communicate/clienttoserver"]
@@ -27,3 +28,6 @@ myAwsMqtt = aws_mqtt.AWS_MQTT(
 )
 
 mySerialManager = None
+
+myRules = data.Rules()
+myScenarios = data.Scenarios()

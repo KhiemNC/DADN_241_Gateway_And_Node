@@ -19,23 +19,42 @@ def process_data_from_node_to_topics(new_message):
     # message in type: !NODE_ID:VALUE_TYPE:VALUE#
     node_id, value_type, value = split_cmd_from_node(new_message)
 
+    # Publish change
+    pub_node_id = node_id
+    pub_value_type = value_type
     if (node_id == "0"):
-        node_id = "CentralNode"
+        pub_node_id = "CentralNode"
     else:
-        node_id = "Node" + node_id
+        pub_node_id = "Node" + node_id
 
     if (value_type in VALUE_TYPE_TO_TOPIC_VALUES):
         if (value_type == "TEMP"):
-            value_type = "temperature"
+            pub_value_type = "temperature"
         elif (value_type == "HUMI"):
-            value_type = "humidity"
+            pub_value_type = "humidity"
         elif (value_type == "LUMO"):
-            value_type = "illuminance"
-        global_manager.myAwsMqtt.publish("values", format_message.json_publish_values(node_id, value_type, value))
+            pub_value_type = "illuminance"
+        global_manager.myAwsMqtt.publish("values", format_message.json_publish_values(pub_node_id, pub_value_type, value))
     
     elif (value_type in VALUE_TYPE_TO_TOPIC_CLIENTS):
         global_manager.myAwsMqtt.publish("communicate/servertoclient",
-                                         format_message.json_publish_update_device_status(node_id, value_type, value))
+                                         format_message.json_publish_update_device_status(pub_node_id, pub_value_type, value))
+        
+    # RULES execution
+    node_id = int(node_id)
+    if (value_type == "TEMP" or value_type == "HUMI" or value_type == "LUMO"):
+        if (value_type == "HUMI"):
+            value_type = "HUMID"
+        elif (value_type == "LUMO"):
+            value_type = "ILLUM"
+
+        global_manager.myRules.execute_rule_value(node_id, value_type, float(value))
+    elif (value_type == "DOOR"):
+        if (int(value) == 1):
+            value = "OPEN"
+        else:
+            value = "CLOSE"
+        global_manager.myRules.execute_rule_door(node_id, value)
 
 
 def CMD00010_control_device(data):
@@ -84,7 +103,15 @@ def CMD00020_control_rule(data):
         global_manager.myAwsMqtt.publish("communicate/servertoclient",
                                          format_message.json_publish_update_control_rule("ADD_RESPONSE", data["rule_id"], "SUCCESS"))
     elif data["type"] == "DELETE":
-        global_manager.myRules.remove_rule(data["rule_id"])
+        result = global_manager.myRules.remove_rule(data["rule_id"])
+
+        # Debug
+        global_manager.myRules.print_rules()
+        # End debug
+
+        if (result == 1):
+            global_manager.myAwsMqtt.publish("communicate/servertoclient",
+                                         format_message.json_publish_update_control_rule("DELETE_RESPONSE", data["rule_id"], "SUCCESS"))
 
 def CMD00030_scenario(data):
     if data["type"] == "ADD":

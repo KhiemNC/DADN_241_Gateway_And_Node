@@ -1,27 +1,71 @@
 import json
 import format_message
+import global_manager
 
 class Rules:
-    rules = []
+    rules_values = []
+    rules_door = []
 
     def __init__(self):
         pass
 
     def add_rule(self, data):
         new_rule = RuleItem(data)
-        self.rules.append(new_rule)
+
+        if (new_rule.device_type_if == "TEMP" or new_rule.device_type_if == "HUMID" or new_rule.device_type_if == "ILLUM"):
+            self.rules_values.append(new_rule)
+        elif (new_rule.device_type_if == "DOOR"):
+            self.rules_door.append(new_rule)
         return 1
 
-    def execute_rule(self, rule_id):
-        for rule in self.rules:
-            if (rule.rule_id == rule_id):
-                if (rule.enable == 1):
+    def execute_rule_value(self, node_id, value_type, value):
+        for rule in self.rules_values:
+            if (rule.device_type_if == value_type and rule.node_id_if == node_id and rule.enable == 1):
+                isExecute = 0
+                if (rule.comparator_if == ">"):
+                    if (value > rule.value_if):
+                        isExecute = 1
+                elif (rule.comparator_if == "<"):
+                    if (value < rule.value_if):
+                        isExecute = 1
+                elif (rule.comparator_if == ">="):
+                    if (value >= rule.value_if):
+                        isExecute = 1
+                elif (rule.comparator_if == "<="):
+                    if (value <= rule.value_if):
+                        isExecute = 1
+                elif (rule.comparator_if == "="):
+                    if (value == rule.value_if):
+                        isExecute = 1
+                
+                if (isExecute == 1):
                     # EXECUTE RULE HERE
-                    return 1
-        return 0
+                    global_manager.mySerialManager.write(rule.cmd)
+                    global_manager.myAwsMqtt.publish("communicate/servertoclient",
+                                         format_message.json_publish_update_control_rule("EXECUTED", rule.rule_id, "SUCCESS"))
+    
+    def execute_rule_door(self, value):
+        for rule in self.rules_door:
+            if (rule.enable == 1):
+                isExecute = 0
+                if (rule.comparator_if == value):
+                    if (value == "OPEN"):
+                        isExecute = 1
+                
+                if (isExecute == 1):
+                    # EXECUTE RULE HERE
+                    global_manager.mySerialManager.write(rule.cmd)
+                    global_manager.myAwsMqtt.publish("communicate/servertoclient",
+                                         format_message.json_publish_update_control_rule("EXECUTED", rule.rule_id, "SUCCESS"))
+
 
     def remove_rule(self, rule_id):
-        for rule in self.rules:
+        for rule in self.rules_values:
+            if (rule.rule_id == rule_id):
+                # set enable to 0
+                rule.enable = 0
+                return 1
+        for rule in self.rules_door:
             if (rule.rule_id == rule_id):
                 # set enable to 0
                 rule.enable = 0
@@ -30,7 +74,11 @@ class Rules:
     
     def print_rules(self):
         print("RULES:---------------------------------")
-        for rule in self.rules:
+        print("---RULES VALUES---")
+        for rule in self.rules_values:
+            print(rule.to_string())
+        print("---RULES DOOR---")
+        for rule in self.rules_door:
             print(rule.to_string())
         print("END RULES:---------------------------------")
         return 1
@@ -67,7 +115,7 @@ class RuleItem:
             device_type = "2"
         elif (device_type == "FAN"):
             device_type = "3"
-            
+
         if (data["value"]["node_id"] == "CentralNode"):
             node_id = 0
         else:

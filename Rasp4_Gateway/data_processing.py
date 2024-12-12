@@ -54,7 +54,7 @@ def process_data_from_node_to_topics(new_message):
             value = "OPEN"
         else:
             value = "CLOSE"
-        global_manager.myRules.execute_rule_door(node_id, value)
+        global_manager.myRules.execute_rule_door(value)
 
 
 def CMD00010_control_device(data):

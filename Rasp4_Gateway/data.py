@@ -62,11 +62,15 @@ class Rules:
             if (rule.rule_id == rule_id):
                 # set enable to 0
                 rule.enable = 0
+                # remove from list
+                self.rules_values.remove(rule)
                 return 1
         for rule in self.rules_door:
             if (rule.rule_id == rule_id):
                 # set enable to 0
                 rule.enable = 0
+                # remove from list
+                self.rules_door.remove(rule)
                 return 1
         return 0
     
@@ -164,6 +168,8 @@ class Scenarios:
             if (scenario.scenario_id == scenario_id):
                 # set enable to 0
                 scenario.enable = 0
+                # remove from list
+                self.scenarios.remove(scenario)
                 return 1
         return 0
     
